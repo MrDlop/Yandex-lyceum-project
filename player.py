@@ -12,7 +12,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
 
         # dust particles
-        # self.import_dust_run_particles()
         self.dust_frame_index = 0
         self.dust_animation_speed = 0.15
         self.display_surface = surface
@@ -23,6 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 8
         self.gravity = 0.8
         self.jump_speed = -16
+        self.health = 10 * 60
 
         # player status
         self.status = 'idle'
@@ -39,10 +39,6 @@ class Player(pygame.sprite.Sprite):
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
-
-    #
-    # def import_dust_run_particles(self):
-    #     self.dust_run_particles = import_folder('../graphics/character/dust_particles/run')
 
     def animate(self):
         animation = self.animations[self.status]
@@ -73,22 +69,6 @@ class Player(pygame.sprite.Sprite):
         elif self.on_ceiling:
             self.rect = self.image.get_rect(midtop=self.rect.midtop)
 
-    # def run_dust_animation(self):
-    #     if self.status == 'run' and self.on_ground:
-    #         self.dust_frame_index += self.dust_animation_speed
-    #         if self.dust_frame_index >= len(self.dust_run_particles):
-    #             self.dust_frame_index = 0
-    #
-    #         dust_particle = self.dust_run_particles[int(self.dust_frame_index)]
-    #
-    #         if self.facing_right:
-    #             pos = self.rect.bottomleft - pygame.math.Vector2(6, 10)
-    #             self.display_surface.blit(dust_particle, pos)
-    #         else:
-    #             pos = self.rect.bottomright - pygame.math.Vector2(6, 10)
-    #             flipped_dust_particle = pygame.transform.flip(dust_particle, True, False)
-    #             self.display_surface.blit(flipped_dust_particle, pos)
-
     def get_input(self):
         keys = pygame.key.get_pressed()
 
@@ -116,6 +96,9 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.status = 'idle'
 
+    def get_damage(self, damage):
+        self.health += damage
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
@@ -127,4 +110,3 @@ class Player(pygame.sprite.Sprite):
         self.get_input()
         self.get_status()
         self.animate()
-        # self.run_dust_animation()
