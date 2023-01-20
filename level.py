@@ -13,8 +13,10 @@ class Level:
         self.display_surface = surface
         self.world_shift = 0
         self.current_x = None
+        self.health = 10
 
         # player
+        self.level_data = level_data
         player_layout = import_csv_layout(level_data['player'])
         self.player = pygame.sprite.GroupSingle()
         self.goal = pygame.sprite.GroupSingle()
@@ -37,8 +39,11 @@ class Level:
         self.crate_sprites = self.create_tile_group(crate_layout, 'crates')
 
         # coins
+        self.count_coins = 0
         coin_layout = import_csv_layout(level_data['coins'])
+        self.coins_many = len(coin_layout)
         self.coin_sprites = self.create_tile_group(coin_layout, 'coins')
+        self.f1 = pygame.font.Font(None, 36)
 
         # foreground palms
         fg_palm_layout = import_csv_layout(level_data['fg palms'])
@@ -58,9 +63,9 @@ class Level:
 
         # decoration
         self.sky = Sky(8)
-        level_width = len(terrain_layout[0]) * tile_size
-        self.water = Water(screen_height - 20, level_width)
-        self.clouds = Clouds(400, level_width, 30)
+        self.level_width = len(terrain_layout[0]) * tile_size
+        self.water = Water(screen_height - 20, self.level_width)
+        self.clouds = Clouds(400, self.level_width, 30)
 
     def create_tile_group(self, layout, type):
         sprite_group = pygame.sprite.Group()
@@ -124,7 +129,6 @@ class Level:
                     sprite = Player((x, y), self.display_surface, self.create_jump_particles)
                     self.player.add(sprite)
 
-
     def enemy_collision_reverse(self):
         for enemy in self.enemy_sprites.sprites():
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
@@ -135,8 +139,6 @@ class Level:
             pos -= pygame.math.Vector2(10, 5)
         else:
             pos += pygame.math.Vector2(10, -5)
-        # jump_particle_sprite = ParticleEffect(pos, 'jump')
-        # self.dust_sprite.add(jump_particle_sprite)
 
     def horizontal_movement_collision(self):
         player = self.player.sprite
@@ -179,6 +181,12 @@ class Level:
         if player.on_ceiling and player.direction.y > 0.1:
             player.on_ceiling = False
 
+    def check_coin_collisions(self):
+        collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
+        if collided_coins:
+            for coin in collided_coins:
+                self.count_coins += 1
+
     def scroll_x(self):
         player = self.player.sprite
         player_x = player.rect.centerx
@@ -206,8 +214,30 @@ class Level:
                 offset = pygame.math.Vector2(10, 15)
             else:
                 offset = pygame.math.Vector2(-10, 15)
-            # fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')
-            # self.dust_sprite.add(fall_dust_particle)
+
+    def restart(self):
+        self.__init__(self.level_data, self.display_surface)
+
+    def check_death(self):
+        if self.player.sprite.rect.top > screen_height:
+            self.restart()
+        if self.player.sprite.health <= 0:
+            self.restart()
+
+    def check_enemy_collisions(self):
+        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemy_sprites, False)
+
+        if enemy_collisions:
+            for enemy in enemy_collisions:
+                enemy_center = enemy.rect.centery
+                enemy_top = enemy.rect.top
+                player_bottom = self.player.sprite.rect.bottom
+                if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y >= 0:
+                    self.player.sprite.direction.y = -15
+                    enemy.kill()
+                else:
+                    self.player.sprite.direction.y = -10
+                    self.player.sprite.get_damage(-10)
 
     def run(self):
         # run the entire game / level
@@ -242,6 +272,12 @@ class Level:
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
 
+        text2 = self.f1.render(str(self.count_coins), 1, pygame.Color('yellow'))
+        self.display_surface.blit(text2, (10, 10))
+
+        health_text = self.f1.render(str(max(0, self.player.sprite.health // 60)), 1, pygame.Color('red'))
+        self.display_surface.blit(health_text, (10, 30))
+
         # foreground palms
         self.fg_palm_sprites.update(self.world_shift)
         self.fg_palm_sprites.draw(self.display_surface)
@@ -265,3 +301,14 @@ class Level:
 
         # water
         self.water.draw(self.display_surface, self.world_shift)
+
+        self.check_win()
+        self.check_death()
+
+        self.check_coin_collisions()
+        self.check_enemy_collisions()
+        return self.check_win()
+
+    def check_win(self):
+        if self.count_coins == self.coins_many:
+            return 1
