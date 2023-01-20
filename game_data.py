@@ -1,10 +1,22 @@
+i = 0
 level_0 = {
-    'terrain': 'graphics/level/0/level_0._terrain.csv',
-    'coins': 'graphics/level/0/level_0._coin.csv',
-    'fg palms': 'graphics/level/0/level_0._fg palms.csv',
-    'bg palms': 'graphics/level/0/level_0._bg palms.csv',
-    'crates': 'graphics/level/0/level_0._crates.csv',
-    'enemies': 'graphics/level/0/level_0._enemies.csv',
-    'constraints': 'graphics/level/0/level_0._constrains.csv',
-    'player': 'graphics/level/0/level_0._player.csv',
-    'grass': 'graphics/level/0/level_0._grass.csv'}
+    'terrain': f'graphics/level/{i}/level_{i}._terrain.csv',
+    'coins': f'graphics/level/{i}/level_{i}._coin.csv',
+    'fg palms': f'graphics/level/{i}/level_{i}._fg palms.csv',
+    'bg palms': f'graphics/level/{i}/level_{i}._bg palms.csv',
+    'crates': f'graphics/level/{i}/level_{i}._crates.csv',
+    'enemies': f'graphics/level/{i}/level_{i}._enemies.csv',
+    'constraints': f'graphics/level/{i}/level_{i}._constrains.csv',
+    'player': f'graphics/level/{i}/level_{i}._player.csv',
+    'grass': f'graphics/level/{i}/level_{i}._grass.csv'}
+i = 1
+level_1 = {
+    'terrain': f'graphics/level/{i}/level_{i}._terrain.csv',
+    'coins': f'graphics/level/{i}/level_{i}._coin.csv',
+    'fg palms': f'graphics/level/{i}/level_{i}._fg palms.csv',
+    'bg palms': f'graphics/level/{i}/level_{i}._bg palms.csv',
+    'crates': f'graphics/level/{i}/level_{i}._crates.csv',
+    'enemies': f'graphics/level/{i}/level_{i}._enemies.csv',
+    'constraints': f'graphics/level/{i}/level_{i}._constrains.csv',
+    'player': f'graphics/level/{i}/level_{i}._player.csv',
+    'grass': f'graphics/level/{i}/level_{i}._grass.csv'}
