@@ -28,6 +28,9 @@ while True:
                     level = Level(level_1, screen)
 
                 start = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                start = False
 
     if start:
         screen.fill('grey')
