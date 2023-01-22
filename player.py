@@ -1,5 +1,6 @@
 import pygame
 from support import import_folder
+from settings import FPS
 
 
 class Player(pygame.sprite.Sprite):
@@ -22,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 8
         self.gravity = 0.8
         self.jump_speed = -16
-        self.health = 10 * 60
+        self.health = 10 * FPS
 
         # player status
         self.status = 'idle'
