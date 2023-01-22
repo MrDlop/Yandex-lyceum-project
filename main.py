@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 level = Level(level_1, screen)
 start = False
 coins = 0
-CDR = 1
+CDR = 0
 WCDR = 10
 WIN_CDR = 0
 
