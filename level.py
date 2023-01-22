@@ -1,10 +1,11 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
-from settings import tile_size, screen_height, screen_width
+from settings import tile_size, screen_height, screen_width, FPS
 from tiles import Tile, StaticTile, Crate, Coin, Palm
 from enemy import Enemy
 from player import Player
 from decoration import Sky, Water, Clouds
+
 
 
 class Level:
@@ -13,7 +14,18 @@ class Level:
         self.display_surface = surface
         self.world_shift = 0
         self.current_x = None
+
+        # health
         self.health = 10
+        self.health_size = 140 // self.health
+        self.health_counter_bg = pygame.image.load('graphics/progress_bar/health_bar.png')
+        self.health_counter_bg = pygame.transform.scale(self.health_counter_bg, (150, 21))
+        self.health_counter_bg_rect = self.health_counter_bg.get_rect(center=(90, 40))
+        self.health_counter = pygame.image.load('graphics/progress_bar/Loading_bar.png')
+        self.health_counter = pygame.transform.scale(self.health_counter, (self.health_size * self.health, 17))
+        self.health_counter_rect = self.health_counter.get_rect(midleft=(20, 39))
+
+
 
         # player
         self.level_data = level_data
@@ -221,7 +233,7 @@ class Level:
     def check_death(self):
         if self.player.sprite.rect.top > screen_height:
             self.restart()
-        if self.player.sprite.health <= 0:
+        if self.player.sprite.health <= 1 * FPS:
             self.restart()
 
     def check_enemy_collisions(self):
@@ -238,6 +250,10 @@ class Level:
                 else:
                     self.player.sprite.direction.y = -10
                     self.player.sprite.get_damage(-10)
+
+    def check_win(self):
+        if self.count_coins == self.coins_many * 2:
+            return 1
 
     def run(self):
         # run the entire game / level
@@ -275,8 +291,13 @@ class Level:
         text2 = self.f1.render(str(self.count_coins), 1, pygame.Color('yellow'))
         self.display_surface.blit(text2, (10, 10))
 
-        health_text = self.f1.render(str(max(0, self.player.sprite.health // 60)), 1, pygame.Color('red'))
-        self.display_surface.blit(health_text, (10, 30))
+        # health
+        if self.health_size * (self.player.sprite.health // FPS) >= 0:
+            self.health_counter = pygame.transform.scale(self.health_counter,
+                                                     (self.health_size * (self.player.sprite.health // FPS), 17))
+            self.display_surface.blit(self.health_counter, self.health_counter_rect)
+            self.display_surface.blit(self.health_counter_bg, self.health_counter_bg_rect)
+
 
         # foreground palms
         self.fg_palm_sprites.update(self.world_shift)
@@ -308,7 +329,3 @@ class Level:
         self.check_coin_collisions()
         self.check_enemy_collisions()
         return self.check_win()
-
-    def check_win(self):
-        if self.count_coins == self.coins_many:
-            return 1
